@@ -1,0 +1,54 @@
+{% extends "auctions/layout.html" %}
+{% block title %}Listing Detail{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <h2>{{ listing.title }}</h2>
+    <p><strong>Description:</strong> {{ listing.description }}</p>
+    <p><strong>Starting Bid:</strong> ${{ listing.starting_bid }}</p>
+    <p><strong>Current Price:</strong> ${{ listing.current_price }}</p>
+    <p><strong>Category:</strong> {{ listing.category }}</p>
+
+    {% if listing.image_url %}
+      <img src="{{ listing.image_url }}" alt="Listing Image" class="listing-image">
+    {% endif %}
+
+    <hr>
+    <h3>Bid on this item</h3>
+    <form method="post" action="{% url 'place_bid' listing_id=listing.id %}">
+      {% csrf_token %}
+      {{ bid_form.as_p }}
+      <button type="submit" class="btn btn-primary">Place Bid</button>
+    </form>
+
+    <hr>
+    <h3>Add a Comment</h3>
+    <form method="post" action="{% url 'add_comment' listing_id=listing.id %}">
+      {% csrf_token %}
+      {{ comment_form.as_p }}
+      <button type="submit" class="btn btn-primary">Add Comment</button>
+    </form>
+
+    <hr>
+    <h3>Comments</h3>
+    <ul class="comments">
+      {% for comment in listing.comments.all %}
+      <li>
+        <strong>{{ comment.commenter }}:</strong> {{ comment.content }}
+        <span class="timestamp">Posted on {{ comment.created_at }}</span>
+      </li>
+      {% empty %}
+      <li>No comments yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Add Watchlist form -->
+  {% if user.is_authenticated %}
+    <form action="{% url 'add_to_watchlist' listing.id %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Add to Watchlist</button>
+    </form>
+  {% endif %}
+{% endblock %}
+
